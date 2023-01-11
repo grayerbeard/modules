@@ -14,11 +14,15 @@ from inspect import getframeinfo as gf
 import tinytuya
 
 class class_tuyaCloud:
-	def __init__(self,config):
+	def __init__(self,config,tinyTuyaJson):
 		self.numberDevices = len(config.names)
 		self.numberCommandSets = config.numberCommandSets
-		self.cloud = tinytuya.Cloud()  # uses tinytuya.json
-		#self.lastSwitchOn = [False]*self.numberDevices
+		self.cloud = tinytuya.Cloud(
+			apiRegion= tinyTuyaJson["apiRegion"],
+        	apiKey=tinyTuyaJson["apiKey"],
+        	apiSecret=tinyTuyaJson["apiSecret"], 
+        	apiDeviceID=tinyTuyaJson["apiDeviceID"])
+
 				
 		self.ids = config.ids
 		self.names = config.names
@@ -371,9 +375,16 @@ class class_tuyaCloud:
 if __name__ == '__main__':
 	# change this to suite number of switches.
 	# one power switch and one heat pump
-	# set up the class
-	config = class_config("configHp.cfg")
-	config.scan_count = 0	
+	# set up the clas
+	config = class_config("configTemplate.cfg")
+	config.scan_count = 0
+
+	#import json
+	
+	# Opening JSON file
+	with open('/home/pi/.tuyaJson/tinytuya.json', 'r') as jsonFilr:
+		# Reading from json file
+		tinyTuyaJson = json.load(jsonFile)
 	cloud = class_tuyaCloud(config)
 	devices = cloud.listDevices()
 	print(json.dumps(devices,indent =4))
