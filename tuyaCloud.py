@@ -5,7 +5,7 @@ from datetime import datetime
 from sys import exit as sys_exit
 from operator import itemgetter
 import json
-from configHp import class_config
+from config import class_config
 from utility import prd as debugPrint
 from inspect import currentframe as cf
 from inspect import getframeinfo as gf
@@ -19,11 +19,22 @@ class class_tuyaCloud:
 		self.numberCommandSets = config.numberCommandSets
 		self.cloud = tinytuya.Cloud(
 			apiRegion= tinyTuyaJson["apiRegion"],
-        	apiKey=tinyTuyaJson["apiKey"],
-        	apiSecret=tinyTuyaJson["apiSecret"], 
-        	apiDeviceID=tinyTuyaJson["apiDeviceID"])
+			apiKey=tinyTuyaJson["apiKey"],
+			apiSecret=tinyTuyaJson["apiSecret"], 
+			apiDeviceID=tinyTuyaJson["apiDeviceID"])
+        	
+		#self.cloud = tinytuya.Cloud()  # uses tinytuya.json 
+		self.devices = self.cloud.getdevices()
+		self.numDevices = len(self.devices)
+		print("Number Devices",self.numDevices)
+		#self.testString = teststring
+		
+		#self.properties = [self.tcloud.getproperties(self.devices[0]['id'])]
+		self.properties = [{}]*self.numDevices
+		if self.numDevices > 0 :
+			for ind in range(self.numDevices):
+				self.properties[ind] = self.cloud.getproperties(self.devices[ind]['id'])
 
-				
 		self.ids = config.ids
 		self.names = config.names
 		self.debug = config.debug
@@ -376,18 +387,23 @@ if __name__ == '__main__':
 	# change this to suite number of switches.
 	# one power switch and one heat pump
 	# set up the clas
-	config = class_config("configTemplate.cfg")
+	config = class_config("config.cfg")
 	config.scan_count = 0
 
 	#import json
 	
 	# Opening JSON file
-	with open('/home/pi/.tuyaJson/tinytuya.json', 'r') as jsonFilr:
+	with open('/home/pi/.tuyaJson/tinytuya.json', 'r') as jsonFile:
+	#with open('/home/pi/modules/tinytuya.json', 'r') as jsonFile:
 		# Reading from json file
 		tinyTuyaJson = json.load(jsonFile)
-	cloud = class_tuyaCloud(config)
-	devices = cloud.listDevices()
-	print(json.dumps(devices,indent =4))
+	cloud = class_tuyaCloud(config,tinyTuyaJson)
+	if cloud.numDevices > 0:
+		for ind in range(cloud.numDevices):
+			print("\n Device :  ",ind)
+			print("\n",json.dumps(cloud.devices[ind],indent = 4),"\n")
+			print("Proterties for :",ind)
+			print("\n",json.dumps(cloud.properties[ind],indent = 4),"\n")
 
 	sys_exit()
 
