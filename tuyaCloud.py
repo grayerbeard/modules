@@ -262,7 +262,7 @@ class class_tuyaCloud:
 						exc = (finfo.filename,str(finfo.lineno),str(type(err))[8:-2],str(err)," Device: " + str(device))
 						excRep.append(exc)
 						print(exc)
-						reason[device] += exc
+						reason[device] += str(exc)
 						print("exception line 251 in tuyaCloud")
 				# problem here was list object "spatus". "has no get
 				try:
@@ -274,7 +274,7 @@ class class_tuyaCloud:
 					exc = (finfo.filename,str(finfo.lineno),str(type(err))[8:-2],str(err)," Device: " + str(device))
 					excRep.append(exc)
 					print(exc)
-					reason[device] += exc
+					reason[device] += str(exc)
 					print("exception line 251 in tuyaCloud")
 			#except:	
 			#	reason += "Get Status Fail (exception) " + self.names[device] + " "
