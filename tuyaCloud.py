@@ -26,10 +26,9 @@ class class_tuyaCloud:
 		#self.cloud = tinytuya.Cloud()  # uses tinytuya.json 
 		self.devices = self.cloud.getdevices()
 		self.numDevices = len(self.devices)
-		print("Number Devices",self.numDevices)
 		#self.testString = teststring
 		
-		#self.properties = [self.tcloud.getproperties(self.devices[0]['id'])]
+		#self.propertiedebug = Falses = [self.tcloud.getproperties(self.devices[0]['id'])]
 		self.properties = [{}]*self.numDevices
 		if self.numDevices > 0 :
 			for ind in range(self.numDevices):
@@ -43,9 +42,10 @@ class class_tuyaCloud:
 		if(len(self.ids) != self.numberDevices) or \
 			(len(self.names) != self.numberDevices) or \
 			(len(self.names) != self.numberDevices):
-			print("Error TuyaCloud line 28 lengths")
+			print("Error TuyaCloud line 46 lengths")
 			print(len(self.ids),self.numberDevices,":",len(self.names),self.numberDevices, \
 				len(self.names),":",self.numberDevices,int(self.values[device][ind]))
+			print("Exit at line 49")
 			sys_exit()
 
 		self.commandPairs = [[]]*config.numberCommandSets
@@ -53,13 +53,18 @@ class class_tuyaCloud:
 		# old/current method
 		self.codes = []
 		self.codes.append(config.codes0)
-		self.codes.append(config.codes1)
+		if not(config.codes1.__eq__("x")):
+			self.codes.append(config.codes1)
+
 		self.values = []
 		self.values.append(config.values0)
-		self.values.append(config.values1)
+		if not(config.values1.__eq__("x")):
+			self.values.append(config.values1)
+
 		self.valuesTypes = []
 		self.valuesTypes.append(config.values0Types)
-		self.valuesTypes.append(config.values1Types)
+		if not(config.values1Types.__eq__("x")):
+			self.valuesTypes.append(config.values1Types)
 
 		#new method
 		#self.codes = config.codes
@@ -76,25 +81,32 @@ class class_tuyaCloud:
 		self.switchOn = [False]*self.numberDevices
 
 		self.devicesStatus = [{}]*self.numberDevices
+		
+		numcommandPairs = [1]*self.numberCommandSets
 
 		for device in range(0,self.numberDevices):
 			status = self.cloud.getstatus(self.ids[device])
 			deviceStatus =  {}
 			for item in status['result']:
 				deviceStatus[item["code"]] = item["value"]
+				
 				if item["code"][:6] == "switch":
 					self.switchOn[device] = item["value"]
 			self.devicesStatus[device] = deviceStatus
 
-		codesLength = len(self.codes[1])
-		valuesLength = len(self.values[1])
-		debugPrint(debug,"test  ",codesLength,valuesLength)
+			codesLength = len(self.codes[device])
+			valuesLength = len(self.values[device])
+			debugPrint(debug,f"codes length and values Length for device : {device} {codesLength}  {valuesLength}")
 
 		for device in range(self.numberCommandSets):
 			#self.commandPairs.append([])
 			codesLength = len(self.codes[device])
 			valuesLength = len(self.values[device])
-			if codesLength != valuesLength:
+			numcommandPairs[device] = codesLength
+			if codesLength > valuesLength:
+				debugPrint(debug,"Less codes than values so only {valuesLength} command pairs will be made")
+				numcommandPairs[device] = valuesLength
+			elif codesLength < valuesLength:
 				debugPrint(debug,"Error with device command pairs : ","")
 				debugPrint(debug,"device : ",device)
 				debugPrint(debug,"codesLength : ",codesLength," codes : ",self.codes[device])
@@ -104,8 +116,9 @@ class class_tuyaCloud:
 			debugPrint(debug,self.codes,"\n",self.valuesTypes)
 			debugPrint(debug,"Command Pairs: ",self.commandPairs[device])
 			debugPrint(debug,"length self.codes",len(self.codes[device]))
-			self.commandPairs[device] = []*len(self.codes[device])
-			for ind  in range(len(self.codes[device])):
+			self.commandPairs[device] = []*numcommandPairs[device]
+			for ind  in range(numcommandPairs[device]):
+				debugPrint(debug,f"Line 121 in Tuyacloud,  ind is {ind} and len(self.codes[device] is {len(self.codes[device])}  self.values {self.values}  self.codes {self.codes}")
 				debugPrint(debug,"Device: ",device," Ind: ",ind)
 				if str(self.values[device][ind]) == 'True':
 					#self.commandPairs[device][ind] = dict(code = self.codes[device][ind],value = True)
@@ -128,18 +141,23 @@ class class_tuyaCloud:
 				else:
 					debugPrint(debug,"THE Missing or incorrect code type", self.valuesTypes[device],self.codes[device]) ,
 					sys_exit()
-		debugPrint(debug,"\n \n Command Pairs\n",self.commandPairs),"\n"
-		debugPrint(debug,"\n \n Command Pairs\n",json.dumps(self.commandPairs,indent = 4),"\n")
-		for device in range(self.numberCommandSets):
-			for ind  in range(len(self.codes[device])):
-				debugPrint(debug,"Command Pairs: ",device,"/",ind," : ",self.commandPairs[device][ind])	
-		debugPrint(debug,"\nInitial status \n",json.dumps(self.devicesStatus,indent = 4))
+
+		for device in range(len(numcommandPairs)):
+			for ind  in range(numcommandPairs[device]):
+				debugPrint(debug,f"Command Pairs for device {device} are {self.commandPairs[device][ind]}")	
+
 
 	def amendCommands(self,device,code,value):
+		status = []
+		excRep = []
+		debugPrint(self.debug,f"Doing Amend Command for device {device} code {code} and value {value}")
 		numberCommands = len(self.commandPairs[device])
 		result = False
+		debugPrint(self.debug,f"numberCommands {numberCommands}  self.commandPairs {self.commandPairs}")
 		for commandIndex in range(0,numberCommands):
+			debugPrint(self.debug,f"commandIndex {commandIndex}")
 			commandCode = self.commandPairs[device][commandIndex]["code"]
+			debugPrint(self.debug,f"commandCode {commandCode}")
 			if commandCode == code:
 				if str(value) == 'True': 
 					self.commandPairs[device][commandIndex]["value"] = True
@@ -160,6 +178,8 @@ class class_tuyaCloud:
 
 		# Assume online until get bad result and offline confirmed
 		reason = ".."
+		status = []
+		excRep = []
 		numberCommands =  len(self.commandPairs[device])
 		success = [True]*self.numberDevices  
 		#print(json.dumps(self.commandPairs[device]))
@@ -174,6 +194,7 @@ class class_tuyaCloud:
 				commands = { 'commands' : command}
 				#print("Command : ",commandIndex,"\n",json.dumps(commands))
 				try:
+					finfo = gf(cf())
 					status = self.cloud.sendcommand(self.ids[device],commands)
 					#print("Status after Command Send : ","\n",json.dumps(status))
 					success[commandIndex] = status['success']
@@ -182,19 +203,23 @@ class class_tuyaCloud:
 					if not(success[commandIndex]):
 						reason += self.names[device]+ "/" + commandCode + " cmnd  fail msg: " + status.get('msg','no msg')
 						print("send command fail",reason)
-				except:	
-					reason += "Send Command : " +str(device) + "/" + str(commandIndex) + " Failed"
-					success[commandIndex] = False
+				except Exception as err:	
+					exc = (finfo.filename,str(finfo.lineno),str(type(err))[8:-2],str(err)," Device: " + str(device))
+					excRep.append(exc)
+					print(exc)
+					reason[device] += str(exc)
 
 		time_sleep(1)
 
 		try:
+			finfo = gf(cf())
 			status = self.cloud.getstatus(self.ids[device])
 			stSuccess = status['success']
-		except:
-			print("Exception at tuyacloud line 125")
-			reason += " Exception at tuyacloud line 125 "
-			stSuccess = False
+		except Exception as err:
+			exc = (finfo.filename,str(finfo.lineno),str(type(err))[8:-2],str(err)," Device: " + str(device))
+			excRep.append(exc)
+			print(exc)
+			reason[device] += str(exc)
 		if stSuccess:
 			statusValues = {}
 			for item in status['result']:
@@ -205,10 +230,16 @@ class class_tuyaCloud:
 		else:
 			reason += " Get Status Fail (result) " + self.names[device] + " "
 			print("get status fail",reason)
-		if status.get('msg','device is online') == 'device is offline':
-			reason += self.names[device] + " is offLine"
-			stSuccess = False
-
+		try:
+			finfo = gf(cf())
+			if status.get('msg','device is online') == 'device is offline':
+				reason += self.names[device] + " is offLine"
+				stSuccess = False
+		except Exception as err:
+			exc = (finfo.filename,str(finfo.lineno),str(type(err))[8:-2],str(err)," Device: " + str(device))
+			excRep.append(exc)
+			print(exc)
+			reason[device] += str(exc)
 		#except:	
 		#	reason += "Get Status Fail (exception) " + self.names[device] + " "
 		#	stSuccess = False
@@ -235,10 +266,11 @@ class class_tuyaCloud:
 					exc = (finfo.filename,str(finfo.lineno),str(type(err))[8:-2],str(err)," Device: " + str(device))
 					excRep.append(exc)
 					print(exc)
-					stSuccess[device] = False
+					reason[device] += str(exc)
 				if stSuccess[device]:
 					statusValues = {}
 					for item in status['result']:
+						debugPrint(self.debug,f"""Tuyacloud Get Status Results, item["code"]  {item["code"]} item["value"]  {item["value"]}""")
 						if (item["code"] == "switch") or (item["code"] == "switch_1"):
 							if str(item["value"]) == "True":
 								self.switchOn[device] = True
@@ -247,7 +279,7 @@ class class_tuyaCloud:
 								self.switchOn[device] = False
 								statusValues[item["code"]] = False
 							else:
-								print("error TuyaCloud 182  ",item["code"],item["value"])
+								print("error TuyaCloud 278  ",item["code"],item["value"])
 								sys_exit()
 						else:
 							statusValues[item["code"]] = item["value"]
@@ -262,8 +294,7 @@ class class_tuyaCloud:
 						exc = (finfo.filename,str(finfo.lineno),str(type(err))[8:-2],str(err)," Device: " + str(device))
 						excRep.append(exc)
 						print(exc)
-						reason[device] += exc
-						print("exception line 251 in tuyaCloud")
+						reason[device] += str(exc)
 				# problem here was list object "spatus". "has no get
 				try:
 					finfo = gf(cf())
@@ -274,7 +305,7 @@ class class_tuyaCloud:
 					exc = (finfo.filename,str(finfo.lineno),str(type(err))[8:-2],str(err)," Device: " + str(device))
 					excRep.append(exc)
 					print(exc)
-					reason[device] += exc
+					reason[device] += str(exc)
 					print("exception line 251 in tuyaCloud")
 			#except:	
 			#	reason += "Get Status Fail (exception) " + self.names[device] + " "
@@ -284,13 +315,16 @@ class class_tuyaCloud:
 
 
 	def listDevices(self):
-		print("get devices")
 		# Display list of devicesapiKey
+		status = []
+		excRep = []
 		devices = self.cloud.getdevices()
 		return devices
 
 	def deviceProperties(self,id):
 		# Display Properties of Device
+		status = []
+		excRep = []
 		properties = self.cloud.getproperties(id)
 		print("Properties of Device:\n", properties)
 		print("\n""\n")
