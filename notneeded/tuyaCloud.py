@@ -148,8 +148,6 @@ class class_tuyaCloud:
 
 
 	def amendCommands(self,device,code,value):
-		status = []
-		excRep = []
 		debugPrint(self.debug,f"Doing Amend Command for device {device} code {code} and value {value}")
 		numberCommands = len(self.commandPairs[device])
 		result = False
@@ -178,8 +176,6 @@ class class_tuyaCloud:
 
 		# Assume online until get bad result and offline confirmed
 		reason = ".."
-		status = []
-		excRep = []
 		numberCommands =  len(self.commandPairs[device])
 		success = [True]*self.numberDevices  
 		#print(json.dumps(self.commandPairs[device]))
@@ -194,8 +190,9 @@ class class_tuyaCloud:
 				commands = { 'commands' : command}
 				#print("Command : ",commandIndex,"\n",json.dumps(commands))
 				try:
-					finfo = gf(cf())
-					status = self.cloud.sendcommand(self.ids[device],commands)
+					#####################################################
+					#finfo = gf(cf())
+					#status = self.cloud.sendcommand(self.ids[device],commands)
 					#print("Status after Command Send : ","\n",json.dumps(status))
 					success[commandIndex] = status['success']
 					if status.get('msg','device is online') == 'device is offline':
@@ -278,8 +275,8 @@ class class_tuyaCloud:
 							elif str(item["value"]) == "False":
 								self.switchOn[device] = False
 								statusValues[item["code"]] = False
-							else:
-								print("error TuyaCloud 278  ",item["code"],item["value"])
+											print("exception line 251 in tuyaCloud")		else:
+								print("error TuyaCloud 182  ",item["code"],item["value"])
 								sys_exit()
 						else:
 							statusValues[item["code"]] = item["value"]
@@ -295,10 +292,6 @@ class class_tuyaCloud:
 						excRep.append(exc)
 						print(exc)
 						reason[device] += str(exc)
-<<<<<<< HEAD
-=======
-						print("exception line 251 in tuyaCloud")
->>>>>>> 5a95e8ad12b500a300fb176a531485fee501253f
 				# problem here was list object "spatus". "has no get
 				try:
 					finfo = gf(cf())
@@ -320,15 +313,11 @@ class class_tuyaCloud:
 
 	def listDevices(self):
 		# Display list of devicesapiKey
-		status = []
-		excRep = []
 		devices = self.cloud.getdevices()
 		return devices
 
 	def deviceProperties(self,id):
 		# Display Properties of Device
-		status = []
-		excRep = []
 		properties = self.cloud.getproperties(id)
 		print("Properties of Device:\n", properties)
 		print("\n""\n")
