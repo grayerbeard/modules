@@ -88,7 +88,7 @@ class class_tuyaCloud:
 
 			codesLength = len(self.codes[device])
 			valuesLength = len(self.values[device])
-            debugPrint(debug,f"codesLength {codesLength}  valuesLength {valuesLength}")
+			debugPrint(debug,f"codesLength {codesLength}  valuesLength {valuesLength}")
 			debugPrint(debug,f"codes length and values Length for device : {device} {codesLength}  {valuesLength}")
 
 		for device in range(self.numberCommandSets):
@@ -133,7 +133,7 @@ class class_tuyaCloud:
 		for device in range(len(numcommandPairs)):
 			for ind  in range(numcommandPairs[device]):
 				debugPrint(debug,f"Command Pairs for device {device} are {self.commandPairs[device][ind]}")	
-debugPrint(debug,"\nInitial status \n",json.dumps(self.devicesStatus,indent = 4))
+				debugPrint(debug,"\nInitial status \n",json.dumps(self.devicesStatus,indent = 4))
 
 	def amendCommands(self,device,code,value):
 		debugPrint(self.debug,f"Doing Amend Command for device {device} code {code} and value {value}")
