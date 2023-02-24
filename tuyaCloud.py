@@ -1,4 +1,5 @@
 # Standard library imports
+# Home version 22 02 2023
 from time import sleep as time_sleep
 from os import path
 from datetime import datetime
@@ -179,7 +180,6 @@ class class_tuyaCloud:
 		# Assume online until get bad result and offline confirmed
 		reason = ".."
 		status = []
-		excRep = []
 		numberCommands =  len(self.commandPairs[device])
 		success = [True]*self.numberDevices  
 		#print(json.dumps(self.commandPairs[device]))
@@ -204,10 +204,11 @@ class class_tuyaCloud:
 						reason += self.names[device]+ "/" + commandCode + " cmnd  fail msg: " + status.get('msg','no msg')
 						print("send command fail",reason)
 				except Exception as err:	
-					exc = (finfo.filename,str(finfo.lineno),str(type(err))[8:-2],str(err)," Device: " + str(device))
-					excRep.append(exc)
+					# Old Version
+					#exc = str(finfo.filename,str(finfo.lineno),str(type(err))[8:-2],str(err)," Device: " + str(device))
+					exc = f" File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}"
 					print(exc)
-					reason[device] += str(exc)
+					reason += exc
 
 		time_sleep(1)
 
@@ -216,10 +217,10 @@ class class_tuyaCloud:
 			status = self.cloud.getstatus(self.ids[device])
 			stSuccess = status['success']
 		except Exception as err:
-			exc = (finfo.filename,str(finfo.lineno),str(type(err))[8:-2],str(err)," Device: " + str(device))
-			excRep.append(exc)
+			exc = f" File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}"
 			print(exc)
-			reason[device] += str(exc)
+			reason += exc
+			stSuccess = False
 		if stSuccess:
 			statusValues = {}
 			for item in status['result']:
@@ -234,88 +235,69 @@ class class_tuyaCloud:
 			finfo = gf(cf())
 			if status.get('msg','device is online') == 'device is offline':
 				reason += self.names[device] + " is offLine"
+				print(f"\n\n {self.names[device]} is offline")
 				stSuccess = False
 		except Exception as err:
-			exc = (finfo.filename,str(finfo.lineno),str(type(err))[8:-2],str(err)," Device: " + str(device))
-			excRep.append(exc)
+			exc = f" File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}"
 			print(exc)
-			reason[device] += str(exc)
-		#except:	
-		#	reason += "Get Status Fail (exception) " + self.names[device] + " "
-		#	stSuccess = False
+			reason += exc
 
-				
-
-		#print ("devicesStatus : ",json.dumps(self.devicesStatus,indent = 4))
 		return success,stSuccess,reason
 
 	def getStatus(self):
 		stSuccess = [False]*self.numberDevices
 		status = []
-		excRep = []
 		finfo = gf(cf())
+		failReason= [""]
+		for number in range(self.numberDevices):
+			failReason.append(f" ##D{number}##>> ")
 		for device in range(0,self.numberDevices):
-			#try:
-			if True:
-				reason = [""]*self.numberDevices
-				try:
-					finfo = gf(cf())
-					status = self.cloud.getstatus(self.ids[device])
-					stSuccess[device] = status.get('success',False)
-				except Exception as err:
-					exc = (finfo.filename,str(finfo.lineno),str(type(err))[8:-2],str(err)," Device: " + str(device))
-					excRep.append(exc)
-					print(exc)
-					reason[device] += str(exc)
-				if stSuccess[device]:
-					statusValues = {}
-					for item in status['result']:
-						debugPrint(self.debug,f"""Tuyacloud Get Status Results, item["code"]  {item["code"]} item["value"]  {item["value"]}""")
-						if (item["code"] == "switch") or (item["code"] == "switch_1"):
-							if str(item["value"]) == "True":
-								self.switchOn[device] = True
-								statusValues[item["code"]] = True
-							elif str(item["value"]) == "False":
-								self.switchOn[device] = False
-								statusValues[item["code"]] = False
-							else:
-								print("error TuyaCloud 278  ",item["code"],item["value"])
-								sys_exit()
+			try:
+				finfo = gf(cf())
+				status = self.cloud.getstatus(self.ids[device])
+				stSuccess[device] = status.get('success',False)
+			except Exception as err:
+				exc =  f" File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}"
+				print(exc)
+				failReason[device] += exc
+			if stSuccess[device]:
+				statusValues = {}
+				for item in status['result']:
+					debugPrint(self.debug,f"""Tuyacloud Get Status Results, item["code"]  {item["code"]} item["value"]  {item["value"]}""")
+					if (item["code"] == "switch") or (item["code"] == "switch_1"):
+						if str(item["value"]) == "True":
+							self.switchOn[device] = True
+							statusValues[item["code"]] = True
+						elif str(item["value"]) == "False":
+							self.switchOn[device] = False
+							statusValues[item["code"]] = False
 						else:
-							statusValues[item["code"]] = item["value"]
-					self.devicesStatus[device] = statusValues
-				else:
-					try:
-						finfo = gf(cf())
-						print("184 try device = :",device)
-						print("self.names[device] ",self.names[device])
-						reason[device] += " Get Status Fail (result) " + self.names[device] + " "
-					except Exception as err:
-						exc = (finfo.filename,str(finfo.lineno),str(type(err))[8:-2],str(err)," Device: " + str(device))
-						excRep.append(exc)
-						print(exc)
-						reason[device] += str(exc)
-<<<<<<< HEAD
-=======
-						print("exception line 251 in tuyaCloud")
->>>>>>> 5a95e8ad12b500a300fb176a531485fee501253f
-				# problem here was list object "spatus". "has no get
+							print("error TuyaCloud 278  ",item["code"],item["value"])
+							sys_exit()
+					else:
+						statusValues[item["code"]] = item["value"]
+				self.devicesStatus[device] = statusValues
+			else:
 				try:
 					finfo = gf(cf())
-					if status.get('msg','device is online') == 'device is offline':
-						reason[device] += self.names[device] + " is offLine"
-						stSuccess[device] = False
+					print("184 try device = :",device)
+					print("self.names[device] ",self.names[device])
+					failReason[device] += " Get Status Fail (result) " + self.names[device] + " "
 				except Exception as err:
-					exc = (finfo.filename,str(finfo.lineno),str(type(err))[8:-2],str(err)," Device: " + str(device))
-					excRep.append(exc)
+					exc = f" File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}"
 					print(exc)
-					reason[device] += str(exc)
-					print("exception line 251 in tuyaCloud")
-			#except:	
-			#	reason += "Get Status Fail (exception) " + self.names[device] + " "
-			#	stSuccess = False
-		#print ("devicesStatus : \n",json.dumps(self.devicesStatus,indent = 4))
-		return stSuccess,reason,self.devicesStatus,excRep
+					failReason[device] += exc
+			# problem here was list object "spatus". "has no get
+			try:
+				finfo = gf(cf())
+				if status.get('msg','device is online') == 'device is offline':
+					failReason[device] += self.names[device] + " is offLine"
+					stSuccess[device] = False
+			except Exception as err:
+				exc = f" File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}"
+				print(exc)
+				failReason[device] += exc
+		return stSuccess,failReason,self.devicesStatus
 
 
 	def listDevices(self):
