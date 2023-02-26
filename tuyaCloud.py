@@ -55,14 +55,37 @@ class class_tuyaCloud:
 		self.codes.append(config.codes0)
 		self.codes.append(config.codes1)
 		self.codes.append(config.codes2)
+		self.codes.append(config.codes3)
+		self.codes.append(config.codes4)
+		self.codes.append(config.codes5)
+		self.codes.append(config.codes6)
+		self.codes.append(config.codes7)
+		self.codes.append(config.codes8)
+		self.codes.append(config.codes9)
+
 		self.values = []
 		self.values.append(config.values0)
 		self.values.append(config.values1)
 		self.values.append(config.values2)
+		self.values.append(config.values3)
+		self.values.append(config.values4)
+		self.values.append(config.values5)
+		self.values.append(config.values6)
+		self.values.append(config.values7)
+		self.values.append(config.values8)
+		self.values.append(config.values9)
+
 		self.valuesTypes = []
 		self.valuesTypes.append(config.values0Types)
 		self.valuesTypes.append(config.values1Types)
 		self.valuesTypes.append(config.values2Types)
+		self.valuesTypes.append(config.values3Types)
+		self.valuesTypes.append(config.values4Types)
+		self.valuesTypes.append(config.values5Types)
+		self.valuesTypes.append(config.values6Types)
+		self.valuesTypes.append(config.values7Types)
+		self.valuesTypes.append(config.values8Types)
+		self.valuesTypes.append(config.values9Types)
 
 		debugPrint(debug,"Codes: ",self.codes)
 		debugPrint(debug,"values: ",self.values)
@@ -162,7 +185,7 @@ class class_tuyaCloud:
 	def upDateDevice(self,device):    # sets device to match values in commands
 
 		# Assume online until get bad result and offline confirmed
-		reason = ".."
+		reason = ""
 		numberCommands =  len(self.commandPairs[device])
 		success = [True]*numberCommands
 		for commandIndex in range(0,numberCommands):
@@ -229,7 +252,7 @@ class class_tuyaCloud:
 		finfo = gf(cf())
 		failReason= [""]
 		for number in range(self.numberDevices):
-			failReason.append(f" ##D{number}##>> ")
+			failReason.append("")
 		for device in range(0,self.numberDevices):
 			try:
 				finfo = gf(cf())
