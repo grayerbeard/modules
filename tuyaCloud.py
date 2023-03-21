@@ -10,9 +10,8 @@ from config import class_config
 from utility import prd as debugPrint
 from inspect import currentframe as cf
 from inspect import getframeinfo as gf
-#from subprocess import callpython -m pip install tinytuya
-		
 import tinytuya
+#from subprocess import callpython -m pip install tinytuya
 
 class class_tuyaCloud:
 	def __init__(self,config,tinyTuyaJson):
@@ -228,7 +227,7 @@ class class_tuyaCloud:
 			for item in status['result']:
 				statusValues[item["code"]] = item["value"]
 				if item["code"][:6] == "switch":
-					 self.switchOn[device] = item["value"]
+					self.switchOn[device] = item["value"]
 			self.devicesStatus[device] = statusValues
 		else:
 			reason += " Get Status Fail (result) " + self.names[device] + " "
