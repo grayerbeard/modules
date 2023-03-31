@@ -1,41 +1,44 @@
-# To get the local air temperature for a location in the UK, you can use the OpenWeatherMap API, which provides weather information for various locations around the world, including the UK.
-# To use the OpenWeatherMap API, you will need an API key, which you can obtain by creating a free account on the OpenWeatherMap website.
-# Once you have your API key, you can use the requests library in Python to make a request to the API and retrieve the current weather data for your desired location. Here's an example code snippet that demonstrates how to get the local air temperature for a location in the UK using the OpenWeatherMap API:
-#python
 import requests
-import json
+import yaml
 
-# Replace <API_KEY> with your OpenWeatherMap API key
-api_key = "31a67209c80c5c442df49e2ed4ac50aa"
+class class_weather:
+    def __init__(self, api_key, lat, lon):
+        self.api_key = api_key
+        self.lat = lat
+        self.lon = lon
+        
+    def get_weather(self):
+        url = f"https://api.openweathermap.org/data/2.5/weather?lat={self.lat}&lon={self.lon}&appid={self.api_key}&units=metric"
+        response = requests.get(url)
+        data = response.json()
+        
+        weather = {
+            "temperature": data["main"]["temp"],
+            "feels_like": data["main"]["feels_like"],
+            "weather": data["weather"][0]["main"],
+            "description": data["weather"][0]["description"],
+            "wind_speed": data["wind"]["speed"],
+            "wind_dir": data["wind"]["deg"],
+            "place": data["name"]
+        }
+        
+        return weather
 
-# Replace <CITY> and <COUNTRY_CODE> with the name of the city and the ISO 3166 country code, respectively
-city = "London"
-country_code = "GB"
-lat = 52.9716
-lon = -2.6908
+def test_weather():
+    with open("/home/pi/.config/tests/config.yaml", "r") as config_file:
+        config = yaml.safe_load(config_file)
+    print(f"Config: {config}")
 
+    wg = class_weather(config["api_key"], config["lat"], config["lon"])
+    weather = wg.get_weather()
 
-# Create the API request URL
-# url = f"https://api.openweathermap.org/data/2.5/weather?q={city},{country_code}&appid={api_key}&units=metric"
-url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
-# Send the API request and get the response
-response = requests.get(url)
+    # Print the weather information
+    print(f"The temperature in {weather['place']} is {weather['temperature']}°C")
+    print(f"Feels like: {weather['feels_like']}°C")
+    print(f"Weather Type: {weather['weather']}")
+    print(f"Weather Description: {weather['description']}")
+    print(f"Wind Speed: {weather['wind_speed']} m/s")
+    print(f"Wind Direction: {weather['wind_dir']} degrees")
 
-# Parse the JSON data in the response
-data = response.json()
-
-# Extract the temperature from the data
-weather = {}
-weather['temperature'] = data["main"]["temp"]
-weather['feels_like'] = data['main']['feels_like']
-weather['weather'] = data['weather'][0]['main']
-weather['description'] = data['weather'][0]['description']
-weather['wind_speed'] = data['wind']['speed']
-weather['wind_dir'] = data['wind']['deg']
-weather['place'] =  data['name']
-
-# Print the temperature
-# print(f"The temperature in {city}, {country_code} is {temperature:.1f}°C")
-print(f"The temperature in  Lat  {lat} and lon {lon} is {weather['temperature']:.1f}°C")
-print(f"The full data set is ",json.dumps(data,indent = 4))
-print(weather)
+if __name__ == '__main__':
+    test_weather()
