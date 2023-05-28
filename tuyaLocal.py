@@ -6,6 +6,7 @@ from datetime import datetime
 from sys import exit as sys_exit
 from operator import itemgetter
 import json
+from homeHeatConfig import class_config
 from utility import prd as debugPrint
 from inspect import currentframe as cf
 from inspect import getframeinfo as gf
@@ -15,6 +16,11 @@ import tinytuya
 
 class class_tuyaCloud:
 	def __init__(self,config,tinyTuyaJson):
+		'''
+		A module to control Yuya Devices directy over Wi Fi
+		
+		
+		'''
 		self.numberDevices = len(config.names)
 		self.numberCommandSets = config.numberCommandSets
 		self.cloud = tinytuya.Cloud(
@@ -293,8 +299,7 @@ if __name__ == '__main__':
 	# change this to suite number of switches.
 	# one power switch and one heat pump
 	# set up the clas
-	from boilerConfig import class_config
-	config = class_config("boilerConfig.cfg")
+	config = class_config("homeHeatConfig.cfg")
 	config.scan_count = 0
 
 	#import json
