@@ -40,10 +40,11 @@ class class_sensors:
 	def __init__(self):
 		# Get Sensor codes from sensorConfig.cfg or set up empty variable and default values
 		self.sensorConfig = class_sensorConfig()
-		self.lastTemperatures = [self.sensorConfig.failDefault]*len(self.sensorConfig.cfgIds)
+		lastTemperatures = [self.sensorConfig.failDefault]*len(self.sensorConfig.cfgIds)
 		self.temperatures = [self.sensorConfig.failDefault]*len(self.sensorConfig.cfgIds)
-		# for debug
-		#self.testBias = -3
+		self.debug = False
+		if self.debug:
+			self.testBias = -3
 	def getTemp(self):
 
 		#set up an empt list for error reporting
@@ -99,7 +100,8 @@ class class_sensors:
 				else:
 					#The code from sensors.cfg was NOT found in connected codes
 					cfgIndex = self.sensorConfig.cfgIds.index(code)
-					#print(cfgIndex,code, "  not found this time")
+					if self.debug:
+						print(cfgIndex,code, "  not found this time")
 					if self.lastTemperatures[cfgIndex] == self.sensorConfig.failDefault:
 						#print(cfgIndex,code, "  never found")
 						self.temperatures[cfgIndex] = self.lastTemperatures[cfgIndex]
@@ -120,8 +122,9 @@ class class_sensors:
 				foundIndex = sensorID.index(code)
 				if code in self.sensorConfig.cfgIds:
 					cfgIdsIndex = self.sensorConfig.cfgIds.index(code)
-					#print("This existing code : ",cfgIdsIndex,code,"  was found")
-					# no additional action needed we have already stoored the temperature in "temperatures" list.
+					if self.dbug:
+						print("This existing code : ",cfgIdsIndex,code,"  was found")
+					    # no additional action needed we have already stoored the temperature in "temperatures" list.
 				else:
 					#this is a new code and must be added to the list
 					cfgIndex = len(self.sensorConfig.cfgIds) + 1 # one more than was there before
@@ -139,17 +142,6 @@ class class_sensors:
 		return self.temperatures,excRep,numberFound
 
 if __name__ == '__main__':
-
-	#from config import class_config
-
-	#Set up Config file and read it in if present
-	#config = class_config()
-	#if fileExists(config.config_filename):		
-	#	print( "will try to read Config File : " ,config.config_filename)
-	#	config.read_file() # overwrites from file
-	#else : # no file so file needs to be writen
-	#	config.write_file()
-	#	print("New Config File Made with default values, you probably need to edit it")
 	sensor = class_sensors()
 	print("Sensor Class set up")
 	lastTime = datetime.now()
@@ -165,14 +157,6 @@ if __name__ == '__main__':
 			print("Error: ",excRep,"\n","Temperatures: ",temperatures)
 		elif numberFound != 2:
 			print("numberFound: ",numberFound, temperatures)
-#		thisTime = datetime.now()
-#		cycleTime = round((thisTime - lastTime).total_seconds(),2)
-#		lastTime = thisTime
-#		for index in range(len(sensor.sensorConfig.cfgIds)):
-#			print(count,cycleTime,index+1,sensor.sensorConfig.cfgIds[index],temperatures[index])
-#		print ("\n")count/pat
-		#print("\n",count)
-		#print(int(round((count/pat),0)),count/pat)
 		count+=1
 		if int(round((count/pat),0)) == count/pat:
 			print("Done: ",count, " of ", limit," After: ", \
