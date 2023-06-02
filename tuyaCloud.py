@@ -315,8 +315,24 @@ if __name__ == '__main__':
 	# change this to suite number of switches.
 	# one power switch and one heat pump
 	# set up the clas
+	import sys
+	from paths import class_paths
+	appName = "heat"
+	paths = class_paths(appName)
+	print(f"Apps at {paths.apps}")
+	if paths.pathsOK:
+		print("Paths are OK")
+	else:
+		print(f'Error in paths.yml or paths.py.  EXITING')
+		print(paths.message)
+		sys_exit()
+
+	sys.path.append(paths.apps)  
+
 	from boilerConfig import class_config
-	config = class_config("boilerConfig.cfg")
+	configFolder = paths.config
+	configFilename = "boilerConfig.cfg"
+	config = class_config(configFolder,configFilename)
 	config.scan_count = 0
 
 	#import json

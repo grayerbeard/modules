@@ -1,0 +1,7 @@
+path_W_git: Git
+path_W_myApps: myApps
+path_W_modules: modules
+path_W_config: config
+path_L_myApps: myApps
+path_L_modules: modules
+path_L_config: .config
