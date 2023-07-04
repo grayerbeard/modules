@@ -1,0 +1,483 @@
+Original Data:
+ {
+    "Debug": false,
+    "BoilerControl": {
+        "changeRateMultiplyer": 14,
+        "controlAverageMins": 3,
+        "infoAverageMins": 30,
+        "tempChangeToLog": 1.5,
+        "hysteresis": 1
+    },
+    "Log": {
+        "addToHtmlFile": "lg",
+        "headings": [
+            "Time",
+            "Hour in Day",
+            "Boiler Temp",
+            "Predicted Temp",
+            "Boiler Target Temp",
+            "Boiler Status",
+            "Change Rate Per Hr",
+            "Slow Average",
+            "On Time",
+            "Off Time",
+            "Total On",
+            "Total Off",
+            "Reason",
+            "Message"
+        ],
+        "localDirWww": "/var/www/html",
+        "logBufferFlag": true,
+        "logDirectory": "log/",
+        "textBufferLength": 30,
+        "ftp_credsFileName": ""
+    },
+    "Scan": {
+        "doTest": false,
+        "maxScans": 0,
+        "mustLog": 30,
+        "scanDelay": 20
+    },
+    "Schedules": {
+        "choose": 0,
+        "schedules": {
+            "name": "Milder-Winter-Time",
+            "schedule": [
+                [
+                    40,
+                    4,
+                    55,
+                    7.5,
+                    50,
+                    15,
+                    55,
+                    18,
+                    50,
+                    21,
+                    40
+                ],
+                [
+                    40,
+                    4,
+                    55,
+                    7.5,
+                    50,
+                    15,
+                    55,
+                    18,
+                    50,
+                    21,
+                    40
+                ],
+                [
+                    40,
+                    4,
+                    55,
+                    7.5,
+                    50,
+                    15,
+                    55,
+                    18,
+                    50,
+                    21,
+                    40
+                ],
+                [
+                    40,
+                    4,
+                    55,
+                    7.5,
+                    50,
+                    15,
+                    55,
+                    18,
+                    50,
+                    21,
+                    40
+                ],
+                [
+                    40,
+                    4,
+                    55,
+                    7.5,
+                    50,
+                    15,
+                    55,
+                    18,
+                    50,
+                    21,
+                    40
+                ],
+                [
+                    40,
+                    4,
+                    55,
+                    7.5,
+                    50,
+                    15,
+                    55,
+                    18,
+                    50,
+                    21,
+                    40
+                ],
+                [
+                    40,
+                    4,
+                    55,
+                    7.5,
+                    50,
+                    15,
+                    55,
+                    18,
+                    50,
+                    21,
+                    40
+                ]
+            ]
+        }
+    },
+    "Tuya": {
+        "devices": [
+            {
+                "codes": [
+                    "switch_1",
+                    "temp_current"
+                ],
+                "id": "bfd590ed31af72dd013xvd",
+                "name": "Temperature Controller",
+                "numCommandPairs": 1,
+                "switchCode": 0,
+                "tempCode": 1,
+                "values": [
+                    false,
+                    123
+                ]
+            },
+            {
+                "codes": "c1",
+                "id": "id1",
+                "name": "spare1",
+                "numCommandPairs": 0,
+                "switchCode": "sc1",
+                "tempCode": "tc1",
+                "values": "v1"
+            },
+            {
+                "codes": "c2",
+                "id": "id2",
+                "name": "spare2",
+                "numCommandPairs": 0,
+                "switchCode": "sc2",
+                "tempCode": "tc2",
+                "values": "v2"
+            },
+            {
+                "codes": "x",
+                "id": "x",
+                "name": "spare3",
+                "numCommandPairs": 0,
+                "switchCode": "x",
+                "tempCode": "x",
+                "values": "x"
+            },
+            {
+                "codes": "x",
+                "id": "x",
+                "name": "spare4",
+                "numCommandPairs": 0,
+                "switchCode": "x",
+                "tempCode": "x",
+                "values": "x"
+            },
+            {
+                "codes": "x",
+                "id": "x",
+                "name": "spare5",
+                "numCommandPairs": 0,
+                "switchCode": "x",
+                "tempCode": "x",
+                "values": "x"
+            },
+            {
+                "codes": "x",
+                "id": "x",
+                "name": "spare6",
+                "numCommandPairs": 0,
+                "switchCode": "x",
+                "tempCode": "x",
+                "values": "x"
+            },
+            {
+                "codes": "x",
+                "id": "x",
+                "name": "spare7",
+                "numCommandPairs": 9,
+                "switchCode": "x",
+                "tempCode": "x",
+                "values": "x"
+            },
+            {
+                "codes": "x",
+                "id": "x",
+                "name": "spare8",
+                "numCommandPairs": 0,
+                "switchCode": "x",
+                "tempCode": "x",
+                "values": "x"
+            },
+            {
+                "codes": "x",
+                "id": "x",
+                "name": "spare9",
+                "numCommandPairs": 0,
+                "switchCode": "x",
+                "tempCode": "x",
+                "values": "x"
+            }
+        ],
+        "numberCommandDevices": 1
+    }
+} 
+
+Test Data:
+ {
+    "BoilerControl": {
+        "changeRateMultiplyer": 14,
+        "controlAverageMins": 3,
+        "hysteresis": 1,
+        "infoAverageMins": 30,
+        "tempChangeToLog": 1.5
+    },
+    "Debug": false,
+    "Log": {
+        "addToHtmlFile": "lg",
+        "ftp_credsFileName": "",
+        "headings": [
+            "Time",
+            "Hour in Day",
+            "Boiler Temp",
+            "Predicted Temp",
+            "Boiler Target Temp",
+            "Boiler Status",
+            "Change Rate Per Hr",
+            "Slow Average",
+            "On Time",
+            "Off Time",
+            "Total On",
+            "Total Off",
+            "Reason",
+            "Message"
+        ],
+        "localDirWww": "/var/www/html",
+        "logBufferFlag": true,
+        "logDirectory": "log/",
+        "textBufferLength": 30
+    },
+    "Scan": {
+        "doTest": false,
+        "maxScans": 0,
+        "mustLog": 30,
+        "scanDelay": 20
+    },
+    "Schedules": {
+        "choose": 0,
+        "schedules": {
+            "name": "Milder-Winter-Time",
+            "schedule": [
+                [
+                    40,
+                    4,
+                    55,
+                    7.5,
+                    50,
+                    15,
+                    55,
+                    18,
+                    50,
+                    21,
+                    40
+                ],
+                [
+                    40,
+                    4,
+                    55,
+                    7.5,
+                    50,
+                    15,
+                    55,
+                    18,
+                    50,
+                    21,
+                    40
+                ],
+                [
+                    40,
+                    4,
+                    55,
+                    7.5,
+                    50,
+                    15,
+                    55,
+                    18,
+                    50,
+                    21,
+                    40
+                ],
+                [
+                    40,
+                    4,
+                    55,
+                    7.5,
+                    50,
+                    15,
+                    55,
+                    18,
+                    50,
+                    21,
+                    40
+                ],
+                [
+                    40,
+                    4,
+                    55,
+                    7.5,
+                    50,
+                    15,
+                    55,
+                    18,
+                    50,
+                    21,
+                    40
+                ],
+                [
+                    40,
+                    4,
+                    55,
+                    7.5,
+                    50,
+                    15,
+                    55,
+                    18,
+                    50,
+                    21,
+                    40
+                ],
+                [
+                    40,
+                    4,
+                    55,
+                    7.5,
+                    50,
+                    15,
+                    55,
+                    18,
+                    50,
+                    21,
+                    40
+                ]
+            ]
+        }
+    },
+    "Tuya": {
+        "devices": [
+            {
+                "codes": [
+                    "switch_1",
+                    "temp_current"
+                ],
+                "id": "bfd590ed31af72dd013xvd",
+                "name": "Temperature Controller",
+                "numCommandPairs": 1,
+                "switchCode": 0,
+                "tempCode": 1,
+                "values": [
+                    false,
+                    123
+                ]
+            },
+            {
+                "codes": "c1",
+                "id": "id1",
+                "name": "spare1",
+                "numCommandPairs": 0,
+                "switchCode": "sc1",
+                "tempCode": "tc1",
+                "values": "v1"
+            },
+            {
+                "codes": "c2",
+                "id": "id2",
+                "name": "spare2",
+                "numCommandPairs": 0,
+                "switchCode": "sc2",
+                "tempCode": "tc2",
+                "values": "v2"
+            },
+            {
+                "codes": "x",
+                "id": "x",
+                "name": "spare3",
+                "numCommandPairs": 0,
+                "switchCode": "x",
+                "tempCode": "x",
+                "values": "x"
+            },
+            {
+                "codes": "x",
+                "id": "x",
+                "name": "spare4",
+                "numCommandPairs": 0,
+                "switchCode": "x",
+                "tempCode": "x",
+                "values": "x"
+            },
+            {
+                "codes": "x",
+                "id": "x",
+                "name": "spare5",
+                "numCommandPairs": 0,
+                "switchCode": "x",
+                "tempCode": "x",
+                "values": "x"
+            },
+            {
+                "codes": "x",
+                "id": "x",
+                "name": "spare6",
+                "numCommandPairs": 0,
+                "switchCode": "x",
+                "tempCode": "x",
+                "values": "x"
+            },
+            {
+                "codes": "x",
+                "id": "x",
+                "name": "spare7",
+                "numCommandPairs": 9,
+                "switchCode": "x",
+                "tempCode": "x",
+                "values": "x"
+            },
+            {
+                "codes": "x",
+                "id": "x",
+                "name": "spare8",
+                "numCommandPairs": 0,
+                "switchCode": "x",
+                "tempCode": "x",
+                "values": "x"
+            },
+            {
+                "codes": "x",
+                "id": "x",
+                "name": "spare9",
+                "numCommandPairs": 0,
+                "switchCode": "x",
+                "tempCode": "x",
+                "values": "x"
+            }
+        ],
+        "numberCommandDevices": 1
+    }
+}

@@ -34,6 +34,7 @@ from sys import argv as sysArgv
 from sys import exit as sysExit
 
 import socket
+import os
 
 # Third party importstemp_log
 # none
@@ -46,11 +47,11 @@ class class_buffer_log:
 		self.dbug = False
 		self.sendPlainCount = 5
 		self.noHeadingYet = True
-		self.config = config
+		self.c = config
 		timestamp = makeTimeText(logTime)
-		self.logFileName = timestamp + "_" + self.config.progName + "_" + self.config.logType + ".csv"
-		self.logFileNameSaveAs = self.config.progPath + self.config.logDirectory + self.logFileName
-		self.localWwwLogFileName = self.config.localDirWww + "/" + self.config.logDirectory + self.logFileName
+		self.logFileName = f'{timestamp}_{self.c.functionName}_log.csv'
+		self.logFileNameSaveAs = os.path.join(self.c.progPath,self.c.logDirectory,self.logFileName)
+		self.localWwwLogFileName = os.path.join(self.c.localDirWww,self.c.logDirectory,self.logFileName)
 		if config.debug:
 			print("self.log_filename : ",self.logFileName)
 			print("self.log_filename_save_as : ",self.logFileNameSaveAs)
@@ -66,7 +67,7 @@ class class_buffer_log:
 			#for hdg_ind in range(0,len(log_headings)):
 			#	self.log_file.write(log_headings[hdg_ind] + ",")
 			
-			for heading  in self.config.headings:
+			for heading  in self.c.headings:
 				
 				self.logFile.write(heading + ",")
 			self.logFile.write("\n")
@@ -76,7 +77,7 @@ class class_buffer_log:
 		#	self.log_file.write(str(log_values[z]) + ",")
 		#	madeString += str(log_values[z]) + ","
 		#filedRecord = {}
-		for heading in self.config.headings:
+		for heading in self.c.headings:
 			#filedRecord[heading] = str(log_values[heading]) + ","
 			self.logFile.write(str(log_values[heading]) + ",")
 		#print("Logged as :",filedRecord)
@@ -86,12 +87,12 @@ class class_buffer_log:
 		return
 		
 	def sendLogByFtp(self,FTP_dbug_flag,remote_log_dir,ftp_timeout):
-		ftp_result = send_by_ftp(FTP_dbug_flag,self.config.ftp_creds_filename, self.log_filename_save_as, \
+		ftp_result = send_by_ftp(FTP_dbug_flag,self.c.ftp_creds_filename, self.log_filename_save_as, \
 			self.log_filename,remote_log_dir,ftp_timeout)
 		for pres_ind in range(0,len(ftp_result)):
 			pr(FTP_dbug_flag,here, str(pres_ind) + " : ", ftp_result[pres_ind])
 		if self.send_plain_count < 0 :
-			ftp_result = send_by_ftp(FTP_dbug_flag,self.config.ftp_creds_filename, self.log_filename_save_as, \
+			ftp_result = send_by_ftp(FTP_dbug_flag,self.c.ftp_creds_filename, self.log_filename_save_as, \
 				"log.csv",remote_log_dir,ftp_timeout)
 			for pres_ind in range(0,len(ftp_result)):
 				pr(FTP_dbug_flag,here, str(pres_ind) + " : ", ftp_result[pres_ind])

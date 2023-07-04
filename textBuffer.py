@@ -25,6 +25,7 @@ import json
 # Local application imports
 from utility import pr,makeTimeText,sendByFtp,fileExists,prd
 from bufferLog import class_buffer_log
+from utility import prd as debugPrint
 
 #class class_bufXferPosn(object):
 
@@ -38,44 +39,53 @@ class class_text_buffer(object):
 	# Get data with just a position in buffer Parameter
 	def __init__(self,config,logTime):
 		#initialization
-		self.config = config
+		self.c = config
+		self.debug = self.c.data.get("Debug",False)
+		self.c.scanDelay = self.c.data["Scan"]["scanDelay"]
+		self.c.textBufferLength = self.c.data["Log"]["textBufferLength"]
+		self.c.headings = self.c.data["Log"]["headings"]
+		self.c.addToHtmlFile = self.c.data["Log"]["addToHtmlFile"]
+		self.c.localDirWww = self.c.data["Log"]["localDirWww"]
+		self.c.ftp_credsFileName = self.c.data["Log"]["ftp_credsFileName"]
+		self.c.logBufferFlag = self.c.data["Log"]["logBufferFlag"]
+		self.c.logDirectory = self.c.data["Log"]["logDirectory"]
+  
+		self.debug = True
 
-		if config.scanDelay > 9:
-			refreshTime = config.scanDelay
+		if self.c.scanDelay > 9:
+			refreshTime = self.c.scanDelay
 		else:
-			refreshTime = 0.9*config.scanDelay
+			refreshTime = 0.9*self.c.scanDelay
 
-		if config.debug:
-			print(" Buffer Init for : ",self.config.progName," with a size of : ",self.config.textBufferLength, \
-			 " and  width of : ", len(self.config.headings))
+		debugPrint(self.debug,f'Buffer Init for appname is {self.c.appName} and functionName of {self.c.functionName} with a size of {self.c.textBufferLength}and  width of {len(self.c.headings)}')
 
 		if not os.path.exists('log'):
-		    os.makedirs('log')
-		
+			os.makedirs('log')
+
 		self.lineValues = {}
 
-		for heading in self.config.headings:
+		for heading in self.c.headings:
 			self.lineValues[heading]  =  "-"
 		self.email_html = "<p> No Log yet </p>"
-		self.dta = [ [ ".." for di in range(len(self.config.headings)) ] for dj in range(self.config.textBufferLength+1) ]
-		self.htmlFileName = config.progName + "_" + self.config.addToHtmlFile + ".html"
-		self.htmlFileNameSaveAs = config.progPath + self.htmlFileName
-		self.wwwFileName = config.localDirWww + "/" + self.htmlFileName
+		self.dta = [ [ ".." for di in range(len(self.c.headings)) ] for dj in range(self.c.textBufferLength+1) ]
+		self.htmlFileName = self.c.functionName + "_" + self.c.addToHtmlFile + ".html"
+		self.htmlFileNameSaveAs = self.c.progPath + self.htmlFileName
+		self.wwwFileName = self.c.localDirWww + "/" + self.htmlFileName
 		
-		if config.debug:
+		if self.c.debug:
 			print("HTML FileName : ",self.htmlFileName)
 			print("HTML FileName save as : ",self.htmlFileNameSaveAs)
 			print("WWW Web FileName : ",self.wwwFileName)
 
 		try:
-			self.ftpCreds = config.ftp_credsFileName
+			self.ftpCreds = self.c.ftp_credsFileName
 		except:
 			self.ftpCreds = ""
 		self.sendHtmlCount = 0
 		self.logFile = ""
-		if self.config.logBufferFlag:
+		if self.c.logBufferFlag:
 			self.sendLogCount = 0
-			self.log = class_buffer_log(self.config,logTime)
+			self.log = class_buffer_log(self.c,logTime)
 		else:
 			self.semdLogCount = 0
 
@@ -102,7 +112,7 @@ class class_text_buffer(object):
 
 		# Set up initial conditions for the buffer posn related
 		
-		self.bufferMaxSize	= config.textBufferLength + 1
+		self.bufferMaxSize	= self.c.textBufferLength + 1
 		# where the most recent data will be after current update
 		# this is also where the newset data will be
 		self.mostRecentPosn = 0
@@ -147,26 +157,26 @@ class class_text_buffer(object):
 			# self.usedSize must be less than buffer size
 			if index >  self.usedSize:
 				print("Error in buffer index")
-				Print("Size is : ",self.usedSize, " Index is : ",Index)
-				sysExit()
+				print("Size is : ",self.usedSize, " Index is : ",index)
+				sys_exit()
 			else:
 				return self.usedSize - index - 1
 
 
 	def updateBuffer(self,saveThis):
 		i = 0
-		for heading in self.config.headings:
+		for heading in self.c.headings:
 			self.dta[self.mostRecentPosn][i] = str(self.lineValues[heading])
 			i += 1
 		self.update(saveThis)
 
-		if self.config.logBufferFlag and saveThis:
+		if self.c.logBufferFlag and saveThis:
 			self.log.logToFile(self.lineValues)
 
 			if fileExists(self.wwwFileName):
 				self.log.copyLogToWww(False)
-			if self.sendLogCount > 10 and fileexists(self.ftpCreds):
-				self.log.sendLogByFtp(False,self.config.logDirectory,self.config.ftpTimeout)
+			if self.sendLogCount > 10 and fileExists(self.ftpCreds):
+				self.log.sendLogByFtp(False,self.c.logDirectory,self.c.ftpTimeout)
 				self.send_logCount = 0
 			elif fileExists(self.ftpCreds):
 				self.sendLogCount += 1
@@ -174,10 +184,10 @@ class class_text_buffer(object):
 				self.sendLogCount = 0
 
 	def pr(self,saveThis,logTime):
-		here = "buffer.pr for " + self.config.progName
+		here = "buffer.pr for " + self.c.functionName
 
 		forScreen = ""
-		for heading in self.config.headings:
+		for heading in self.c.headings:
 			forScreen += " " + str(self.lineValues[heading])
 		print(forScreen)
 
@@ -188,8 +198,8 @@ class class_text_buffer(object):
 			htmlFile.write(self.fileStart)
 
 			# If we are logging to file then add info at top of file on log file
-			if self.config.logBufferFlag:
-				self.logFile = self.config.logDirectory + self.log.logFileName
+			if self.c.logBufferFlag:
+				self.logFile = self.c.logDirectory + self.log.logFileName
 				htmlFile.write('<p>' + self.htmlFileName + ' : ' + 
 					makeTimeText(logTime)  + '      ' +
 					'<a href= "' + self.logFile + 
@@ -205,7 +215,7 @@ class class_text_buffer(object):
 			self.emailHtml = self.tblStart + self.tblStartLine
 
 			# Write the headings
-			for heading in self.config.headings:
+			for heading in self.c.headings:
 				htmlFile.write(self.tblStartCol + heading + self.tblEndCol)
 				self.emailHtml = self.emailHtml + self.tblStartCol + heading + self.tblEndCol
 			htmlFile.write(self.tblEndLine)
@@ -220,7 +230,7 @@ class class_text_buffer(object):
 				# Write one line
 				htmlFile.write(self.tblStartLine)
 				self.emailHtml +=  self.tblStartLine
-				for i in range(len(self.config.headings)):
+				for i in range(len(self.c.headings)):
 					
 					htmlFile.write(self.tblStartCol + str(self.dta[lineInd][i]) + self.tblEndCol)
 					self.emailHtml += self.tblStartCol + str(self.dta[lineInd][i]) + self.tblEndCol
@@ -246,7 +256,7 @@ class class_text_buffer(object):
 			if self.sendHtmlCount >= 3:
 				# To debug FTP change end of following line to " = True"   !!!!!!!!!!!! 
 				FTPdbugflag = False
-				ftpresult = sendbyftp(FTPdbugflag,self.ftpcreds, self.htmlFileNamesaveas, self.htmlFileName,"",self.config.ftptimeout)
+				ftpresult = sendByFtp(FTPdbugflag,self.ftpcreds, self.htmlFileNamesaveas, self.htmlFileName,"",self.c.ftptimeout)
 				for presind in range(0,len(ftpresult)):
 					pr(FTPdbugflag,here, str(presind) + " : ", ftpresult[presind])
 				self.sendhtmlcount = 0
@@ -259,7 +269,7 @@ class class_text_buffer(object):
 if __name__ == '__main__':
 	from configTextBufferTest import class_config
 	config = class_config("configTextBufferTest")
-	config.scancount = 0
+	self.c.scancount = 0
 	logTime = datetime.now()
 	logType = "log"
 	logBuffer = class_text_buffer(config,logTime)
@@ -272,7 +282,7 @@ if __name__ == '__main__':
 	twice = 0
 	occCount = 0
 
-	while (config.scanCount <= config.maxScans) or (config.maxScans == 0):
+	while (self.c.scanCount <= self.c.maxScans) or (self.c.maxScans == 0):
 
 # Headings are:    Time,Count,Hour In Day,Position,Heading5,Heading6,Reason,Message
 
@@ -281,21 +291,21 @@ if __name__ == '__main__':
 		dayInWeek = logTime.weekday()
 		hourInDay = logTime.hour + (logTime.minute/60)
 		logBuffer.lineValues["Time"] = makeTimeText(logTime)
-		logBuffer.lineValues["Count"] =  str(config.scanCount)
+		logBuffer.lineValues["Count"] =  str(self.c.scanCount)
 		logBuffer.lineValues["Hour In Day"] = round(hourInDay,2)
 		logBuffer.lineValues["Position"] = str(logBuffer.mostRecentPosn)
 		logBuffer.lineValues["Heading5"] = "head5"
 		logBuffer.lineValues["Heading6"] = "head6"
 	
 
-		if (config.scanCount < 3): 
+		if (self.c.scanCount < 3): 
 			saveThis = True
 			reason += "Start "
-			prd(config.debug,"Reason: ",reason)	
+			prd(self.c.debug,"Reason: ",reason)	
 
-		if (config.scanCount > 4) and occ < 5:
+		if (self.c.scanCount > 4) and occ < 5:
 			occ += 1
-		elif (config.scanCount > 4):
+		elif (self.c.scanCount > 4):
 			saveThis = True
 			reason += "O" + str(occCount)
 			occ = 0
@@ -319,6 +329,6 @@ if __name__ == '__main__':
 		reason = ""
 		message = ""
 
-		config.scanCount += 1
+		self.c.scanCount += 1
 
-		timeSleep(config.scanDelay)	
+		timeSleep(self.c.scanDelay)	

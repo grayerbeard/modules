@@ -6,6 +6,7 @@ from datetime import datetime
 from sys import exit as sys_exit
 from operator import itemgetter
 import json
+import yaml
 from utility import prd as debugPrint
 from inspect import currentframe as cf
 from inspect import getframeinfo as gf
@@ -14,166 +15,88 @@ import tinytuya
 
 class class_tuyaCloud:
 	def __init__(self,config,tinyTuyaJson):
-		self.numberDevices = len(config.names)
-		self.numberCommandSets = config.numberCommandSets
+     
+		# Save required data from Config for this class
+		self.TD = config.TD
+		self.numberCommandDevices = config.data["Tuya"]["numberCommandDevices"]
+		self.debug = config.debug		
+		self.numConfiguredDevices = len(self.TD)
+		
 		self.cloud = tinytuya.Cloud(
 			apiRegion= tinyTuyaJson["apiRegion"],
 			apiKey=tinyTuyaJson["apiKey"],
 			apiSecret=tinyTuyaJson["apiSecret"], 
 			apiDeviceID=tinyTuyaJson["apiDeviceID"])
-        	
-		#self.cloud = tinytuya.Cloud()  # uses tinytuya.json 
 		self.devices = self.cloud.getdevices()
-		self.numDevices = len(self.devices)
-		#self.testString = teststring
-		
-		#self.propertiedebug = Falses = [self.tcloud.getproperties(self.devices[0]['id'])]
-		self.properties = [{}]*self.numDevices
-		if self.numDevices > 0 :
-			for ind in range(self.numDevices):
-				self.properties[ind] = self.cloud.getproperties(self.devices[ind]['id'])
+		self.numRegisteredDevices = len(self.devices)
+		self.properties = [{}]*self.numRegisteredDevices
+		if self.numRegisteredDevices > 0 :
+			for ind in range(self.numRegisteredDevices):
+				self.properties[ind] = self.cloud.getproperties(self.devices[ind]["id"])
 
-		self.ids = config.ids
-		self.names = config.names
-		self.debug = config.debug
-		debug = self.debug
+		self.commandPairs = [[]] * self.numberCommandDevices
 
-		if(len(self.ids) != self.numberDevices) or \
-			(len(self.names) != self.numberDevices) or \
-			(len(self.names) != self.numberDevices):
-			print("Error TuyaCloud line 46 lengths")
-			print(len(self.ids),self.numberDevices,":",len(self.names),self.numberDevices, \
-				len(self.names),":",self.numberDevices,int(self.values[device][ind]))
-			sys_exit()
+		self.switchOn = [False]*self.numConfiguredDevices
 
-		self.commandPairs = [[]]*config.numberCommandSets
+		self.devicesStatus = [{}]*self.numConfiguredDevices
 
-		# Get Codes Start Values and Types 
-		self.codes = []
-		self.codes.append(config.codes0)
-		self.codes.append(config.codes1)
-		self.codes.append(config.codes2)
-		self.codes.append(config.codes3)
-		self.codes.append(config.codes4)
-		self.codes.append(config.codes5)
-		self.codes.append(config.codes6)
-		self.codes.append(config.codes7)
-		self.codes.append(config.codes8)
-		self.codes.append(config.codes9)
-
-		self.values = []
-		self.values.append(config.values0)
-		self.values.append(config.values1)
-		self.values.append(config.values2)
-		self.values.append(config.values3)
-		self.values.append(config.values4)
-		self.values.append(config.values5)
-		self.values.append(config.values6)
-		self.values.append(config.values7)
-		self.values.append(config.values8)
-		self.values.append(config.values9)
-
-		self.valuesTypes = []
-		self.valuesTypes.append(config.values0Types)
-		self.valuesTypes.append(config.values1Types)
-		self.valuesTypes.append(config.values2Types)
-		self.valuesTypes.append(config.values3Types)
-		self.valuesTypes.append(config.values4Types)
-		self.valuesTypes.append(config.values5Types)
-		self.valuesTypes.append(config.values6Types)
-		self.valuesTypes.append(config.values7Types)
-		self.valuesTypes.append(config.values8Types)
-		self.valuesTypes.append(config.values9Types)
-
-		debugPrint(debug,"Codes: ",self.codes)
-		debugPrint(debug,"values: ",self.values)
-		debugPrint(debug,"ValueTypes: ",self.valuesTypes)
-
-		#Following line for when checking read in of codes,values and types
-		#sys_exit()
-
-		self.switchOn = [False]*self.numberDevices
-
-		self.devicesStatus = [{}]*self.numberDevices
-		
-		numcommandPairs = [1]*self.numberCommandSets
-
-		for device in range(0,self.numberDevices):
-			status = self.cloud.getstatus(self.ids[device])
+		for device in range(0,self.numConfiguredDevices):
+			status = self.cloud.getstatus(self.TD[device]["id"])
 			deviceStatus =  {}
-			for item in status['result']:
-				deviceStatus[item["code"]] = item["value"]	
+			debugPrint(self.debug,f'device number {device}')
+			try:
+				debugPrint(self.debug,f'status["result"] is {status["result"]}')
+			except:
+				debugPrint(self.debug,f'\n reached end of devices with readable status at number {device} \n')
+				break
+			for item in status["result"]:
+				deviceStatus[item["code"]] = item["value"]
 				if item["code"][:6] == "switch":
 					self.switchOn[device] = item["value"]
 			self.devicesStatus[device] = deviceStatus
 
-			codesLength = len(self.codes[device])
-			valuesLength = len(self.values[device])
-			debugPrint(debug,f"codesLength {codesLength}  valuesLength {valuesLength}")
-			debugPrint(debug,f"codes length and values Length for device : {device} {codesLength}  {valuesLength}")
+			debugPrint(self.debug,f'self.TD[device]["codes"]): {self.TD[device]["codes"]}   self.TD[device]["values"] : {self.TD[device]["values"]}')
+			codesLength = len(self.TD[device]["codes"])
+			valuesLength = len(self.TD[device]["values"])
+			debugPrint(self.debug,f'For device {device} called {self.TD[device]["name"]} codesLength {codesLength}  valuesLength {valuesLength}')
 
-		for device in range(self.numberCommandSets):
-			#self.commandPairs.append([])
-			codesLength = len(self.codes[device])
-			valuesLength = len(self.values[device])
-			numcommandPairs[device] = codesLength
-			if codesLength > valuesLength:
-				debugPrint(debug,"Less codes than values so only {valuesLength} command pairs will be made")
-				numcommandPairs[device] = valuesLength
-			elif codesLength < valuesLength:
-				debugPrint(debug,"Error with device command pairs : ","")
-				debugPrint(debug,"device : ",device)
-				debugPrint(debug,"codesLength : ",codesLength," codes : ",self.codes[device])
-				debugPrint(debug,"codesLength : ",codesLength," values : ",self.values[device])
+			# Setup the command pairs for each device This is used to create the commands to
+			# send to a device. This is only  done for the first "commandsets" devices
+			# and for each device only for the first "command pairs" of codes and values.	
+		for device in range(self.numberCommandDevices):
+			if len(self.TD[device]["codes"]) != len(self.TD[device]["values"]):
+				print(f'Error device {device} called {self.TD[device]["name"]} \
+					self.TD[device]["codes"]) and self.TD[device]["values"]) are {self.TD[device]["codes"]} and {self.TD[device]["values"]}')
 				sys_exit()
-
-			debugPrint(debug,self.codes,"\n",self.valuesTypes)
-			debugPrint(debug,"Command Pairs: ",self.commandPairs[device])
-			debugPrint(debug,"length self.codes",len(self.codes[device]))
-			self.commandPairs[device] = []*numcommandPairs[device]
-			for ind  in range(numcommandPairs[device]):
-				debugPrint(debug,f"Line 121 in Tuyacloud,  ind is {ind} and len(self.codes[device] is {len(self.codes[device])}  self.values {self.values}  self.codes {self.codes}")
-				debugPrint(debug,"Device: ",device," Ind: ",ind)
-				if str(self.values[device][ind]) == 'True':
-					self.commandPairs[device].append(dict(code = self.codes[device][ind],value = True))
-				elif str(self.values[device][ind]) == 'False':
-					debugPrint(debug,"self.commandPairs[device] ",self.commandPairs[device])
-					debugPrint(debug,"self.codes[device] ",self.codes[device])
-					debugPrint(debug,"self.codes[device][ind] ",self.codes[device][ind])
-					self.commandPairs[device].append(dict(code = self.codes[device][ind],value = False))
-					debugPrint(debug,"###self.commandPairs[device] ",self.commandPairs[device])
-				elif self.valuesTypes[device][ind] == "s":
-					self.commandPairs[device].append(dict(code = self.codes[device][ind],value = str(self.values[device][ind])))
-				elif self.valuesTypes[device][ind] == "i":
-					self.commandPairs[device].append(dict(code = self.codes[device][ind],value = int(self.values[device][ind])))
-				else:
-					print(f"Missing or incorrect code type Value Types: {self.valuesTypes[device]} Codes : {self.codes[device]}")
-					sys_exit()
-		debugPrint(debug,"\n \n Command Pairs\n",self.commandPairs),"\n"
-		debugPrint(debug,"\n \n Command Pairs\n",json.dumps(self.commandPairs,indent = 4),"\n")
-		for device in range(len(numcommandPairs)):
-			for ind  in range(numcommandPairs[device]):
-				debugPrint(debug,f"Command Pairs for device {device} are {self.commandPairs[device][ind]}")	
-				debugPrint(debug,"\nInitial status \n",json.dumps(self.devicesStatus,indent = 4))
+			pairs = []
+			for pair in range(self.TD[device]["numCommandPairs"]):
+				pairs.append(dict(code = self.TD[device]["codes"][pair],value = self.TD[device]["values"][pair]))
+			self.commandPairs[device] = pairs
+			debugPrint(self.debug,f'self.commandPairs  {self.commandPairs}')
 
 	def amendCommands(self,device,code,value):
-		debugPrint(self.debug,f"Doing Amend Command for device {device} code {code} and value {value}")
+		# The first "command sets" devices each have 
+		# "commandpairs" of pairs of commands
+		# in this function we look for the "code"
+		# in device "device" abd set its value to "value".
+		# not it must be the right data type but that type is determined
+  
+  
+     
+     
+		debugPrint(self.debug,f'Doing Amend Command for device {device} code {code} and value {value}')
 		numberCommands = len(self.commandPairs[device])
 		result = False
-		debugPrint(self.debug,f"numberCommands {numberCommands}  self.commandPairs {self.commandPairs}")
+		debugPrint(self.debug,f'numberCommands {numberCommands}  self.commandPairs {self.commandPairs}')
 		for commandIndex in range(0,numberCommands):
-			debugPrint(self.debug,f"commandIndex {commandIndex}")
+			debugPrint(self.debug,f'commandIndex {commandIndex}')
 			commandCode = self.commandPairs[device][commandIndex]["code"]
-			debugPrint(self.debug,f"commandCode {commandCode}")
+			debugPrint(self.debug,f'commandCode {commandCode}')
 			if commandCode == code:
 				if str(value) == 'True': 
 					self.commandPairs[device][commandIndex]["value"] = True
 				elif str(value) == 'False':
 					self.commandPairs[device][commandIndex]["value"] = False
-				elif self.valuesTypes[device][commandIndex] == "s": 
-					self.commandPairs[device][commandIndex]["value"] = str(value)
-				elif self.valuesTypes[device][commandIndex] == "i":
-					self.commandPairs[device][commandIndex]["value"] = int(value)
 				else:
 					print("Missing or incorrect code type",commandIndex,self.valuesTypes[device],code)
 					sys_exit()
@@ -190,22 +113,22 @@ class class_tuyaCloud:
 			commandCode = self.commandPairs[device][commandIndex]["code"]
 			statusValue = str(self.devicesStatus[device][commandCode])
 			command = self.commandPairs[device][commandIndex]
-			commandValue = str(command['value'])
+			commandValue = str(command["value"])
 			if (statusValue != commandValue) or (commandIndex == 0):
 				# Create the json command to send
 				commands = { 'commands' : command}
 				try:
 					finfo = gf(cf())
-					status = self.cloud.sendcommand(self.ids[device],commands)
-					success[commandIndex] = status['success']
+					status = self.cloud.sendcommand(self.TD[device]["id"],commands)
+					success[commandIndex] = status["success"]
 					if status.get('msg','device is online') == 'device is offline':
-						reason += self.names[device] + "is offLine"
+						reason += self.TD[device]["name"] + "is offLine"
 					if not(success[commandIndex]):
-						reason += self.names[device]+ "/" + commandCode + " cmnd  fail msg: " + status.get('msg','no msg')
+						reason += self.TD[device]["name"]+ "/" + commandCode + " cmnd  fail msg: " + status.get('msg','no msg')
 						success[commandIndex] = False
 						print("send command fail",reason)
 				except Exception as err:	
-					exc = f" File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}"
+					exc = f' File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}'
 					print(exc)
 					reason += exc
 					success[commandIndex] = False
@@ -214,56 +137,56 @@ class class_tuyaCloud:
 
 		try:
 			finfo = gf(cf())
-			status = self.cloud.getstatus(self.ids[device])
-			stSuccess = status['success']
+			status = self.cloud.getstatus(self.TD[device]["id"])
+			stSuccess = status["success"]
 		except Exception as err:
-			exc = f" File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}"
+			exc = f' File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}'
 			print(exc)
 			reason += exc
 			stSuccess = False
 		if stSuccess:
 			statusValues = {}
-			for item in status['result']:
+			for item in status["result"]:
 				statusValues[item["code"]] = item["value"]
 				if item["code"][:6] == "switch":
 					self.switchOn[device] = item["value"]
 			self.devicesStatus[device] = statusValues
 		else:
-			reason += " Get Status Fail (result) " + self.names[device] + " "
+			reason += " Get Status Fail (result) " + self.TD[device]["name"] + " "
 			print("get status fail",reason)
 		try:
 			finfo = gf(cf())
 			if status.get('msg','device is online') == 'device is offline':
-				reason += self.names[device] + " is offLine"
-				print(f"\n\n {self.names[device]} is offline")
+				reason += self.TD[device]["name"] + " is offLine"
+				print(f'\n\n {self.TD[device]["name"]} is offline')
 				stSuccess = False
 		except Exception as err:
-			exc = f" File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}"
+			exc = f' File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}'
 			print(exc)
 			reason += exc
 
 		return success,stSuccess,reason
 
 	def getStatus(self):
-		stSuccess = [False]*self.numberDevices
+		stSuccess = [False]*self.numConfiguredDevices
 		status = []
 		finfo = gf(cf())
 		failReason= [""]
-		for number in range(self.numberDevices):
+		for number in range(self.numConfiguredDevices):
 			failReason.append("")
-		for device in range(0,self.numberDevices):
+		for device in range(0,self.numConfiguredDevices):
 			try:
 				finfo = gf(cf())
-				status = self.cloud.getstatus(self.ids[device])
+				status = self.cloud.getstatus(self.TD[device]["id"])
 				stSuccess[device] = status.get('success',False)
 			except Exception as err:
-				exc =  f" File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}"
+				exc =  f' File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}'
 				print(exc)
 				failReason[device] += exc
 			if stSuccess[device]:
 				statusValues = {}
-				for item in status['result']:
-					debugPrint(self.debug,f"""Tuyacloud Get Status Results, item["code"]  {item["code"]} item["value"]  {item["value"]}""")
+				for item in status["result"]:
+					debugPrint(self.debug,f'""Tuyacloud Get Status Results, item["code"]  {item["code"]} item["value"]  {item["value"]}'"")
 					if (item["code"] == "switch") or (item["code"] == "switch_1"):
 						if str(item["value"]) == "True":
 							self.switchOn[device] = True
@@ -280,21 +203,20 @@ class class_tuyaCloud:
 			else:
 				try:
 					finfo = gf(cf())
-					print("184 try device = :",device)
-					print("self.names[device] ",self.names[device])
-					failReason[device] += " Get Status Fail (result) " + self.names[device] + " "
+					debugPrint(self.debug,f'@line 223 try device number = :"{device} called {self.TD[device]["name"]}')
+					failReason[device] += " Get Status Fail (result) " + self.TD[device]["name"] + " "
 				except Exception as err:
-					exc = f" File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}"
+					exc = f' File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}'
 					print(exc)
 					failReason[device] += exc
-			# problem here was list object "spatus". "has no get
+			# problem here was list object "status". "has no get
 			try:
 				finfo = gf(cf())
 				if status.get('msg','device is online') == 'device is offline':
-					failReason[device] += self.names[device] + " is offLine"
+					failReason[device] += self.TD[device]["name"] + " is offLine"
 					stSuccess[device] = False
 			except Exception as err:
-				exc = f" File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}"
+				exc = f' File: {finfo.filename} Ln: {finfo.lineno} Type: {str(type(err))[8:-2]} Error: {str(err)}'
 				print(exc)
 				failReason[device] += exc
 		return stSuccess,failReason,self.devicesStatus
@@ -316,10 +238,11 @@ if __name__ == '__main__':
 	# one power switch and one heat pump
 	# set up the clas
 	import sys
+	import os
 	from paths import class_paths
 	appName = "heat"
 	paths = class_paths(appName)
-	print(f"Apps at {paths.apps}")
+	print(f'Apps at {paths.apps}')
 	if paths.pathsOK:
 		print("Paths are OK")
 	else:
@@ -329,28 +252,36 @@ if __name__ == '__main__':
 
 	sys.path.append(paths.apps)  
 
-	from boilerConfig import class_config
-	configFolder = paths.config
-	configFilename = "boilerConfig.cfg"
-	config = class_config(configFolder,configFilename)
+	from configYml import class_configYml
+	appName = "heat"
+	functionName = "boiler"
+	config = class_configYml(appName,functionName)
 	config.scan_count = 0
 
-	#import json
-	
-	# Opening JSON file
-	with open('/home/pi/.tuyaJson/tinytuya.json', 'r') as jsonFile:
-	#with open('/home/pi/modules/tinytuya.json', 'r') as jsonFile:
-		# Reading from json file
-		tinyTuyaJson = json.load(jsonFile)
-	cloud = class_tuyaCloud(config,tinyTuyaJson)
-	if cloud.numDevices > 0:
-		for ind in range(cloud.numDevices):
-			print("\n Device :  ",ind)
-			print("\n",json.dumps(cloud.devices[ind],indent = 4),"\n")
-			print("Proterties for :",ind)
-			print("\n",json.dumps(cloud.properties[ind],indent = 4),"\n")
+	print(f'config.debug is {config.debug}')
+ 
+	filename = "secreted.yml"
+	pathname = paths.config
+	with open(os.path.join(pathname,filename), 'r') as ymlFile:
+		# Reading from yml file
+		secretedData = yaml.safe_load(ymlFile)
+		debugPrint(config.debug,f'secretedData is {json.dumps(secretedData,indent = 4)}')
+		tinyTuyaDictionary = secretedData["tuya"]
+	cloud = class_tuyaCloud(config,tinyTuyaDictionary)
 
 	sys_exit()
+
+	if cloud.numRegisteredDevices > 0:
+		if config.debug:
+			for ind in range(cloud.numRegisteredDevices):
+				print("\n Registered Device Number:  ",ind)
+				print("\n",json.dumps(cloud.devices[ind],indent = 4),"\n")
+				print("Properties for :",ind)
+				print("\n",json.dumps(cloud.properties[ind],indent = 4),"\n")
+		else:
+			print(f"Number of devices registered is {cloud.numRegisteredDevices}")
+
+	
 
 	dHp = config.deviceNumberHp
 	dHtrs = config.deviceNumberHeaters
