@@ -259,6 +259,8 @@ if __name__ == '__main__':
 	config.scan_count = 0
 
 	print(f'config.debug is {config.debug}')
+
+	config.TD = config.data["Tuya"]["devices"]
  
 	filename = "secreted.yml"
 	pathname = paths.config
@@ -269,19 +271,23 @@ if __name__ == '__main__':
 		tinyTuyaDictionary = secretedData["tuya"]
 	cloud = class_tuyaCloud(config,tinyTuyaDictionary)
 
-	sys_exit()
+	#sys_exit()
+	config.debug = True
+
+	dumpText = ""
 
 	if cloud.numRegisteredDevices > 0:
 		if config.debug:
 			for ind in range(cloud.numRegisteredDevices):
-				print("\n Registered Device Number:  ",ind)
-				print("\n",json.dumps(cloud.devices[ind],indent = 4),"\n")
-				print("Properties for :",ind)
-				print("\n",json.dumps(cloud.properties[ind],indent = 4),"\n")
+				with open("dump.txt", 'w') as file:
+					file.write( f'\n Registered Device Number: {ind}')
+					file.write( f'\n {json.dumps(cloud.devices[ind],indent = 4)}\n')
+					file.write( f'Properties for :  {ind}')
+					file.write( f'\n {json.dumps(cloud.properties[ind],indent = 4)}\n')
 		else:
 			print(f"Number of devices registered is {cloud.numRegisteredDevices}")
 
-	
+	sys_exit()
 
 	dHp = config.deviceNumberHp
 	dHtrs = config.deviceNumberHeaters

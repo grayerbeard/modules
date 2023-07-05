@@ -1,483 +1,107 @@
-Original Data:
- {
-    "Debug": false,
-    "BoilerControl": {
-        "changeRateMultiplyer": 14,
-        "controlAverageMins": 3,
-        "infoAverageMins": 30,
-        "tempChangeToLog": 1.5,
-        "hysteresis": 1
-    },
-    "Log": {
-        "addToHtmlFile": "lg",
-        "headings": [
-            "Time",
-            "Hour in Day",
-            "Boiler Temp",
-            "Predicted Temp",
-            "Boiler Target Temp",
-            "Boiler Status",
-            "Change Rate Per Hr",
-            "Slow Average",
-            "On Time",
-            "Off Time",
-            "Total On",
-            "Total Off",
-            "Reason",
-            "Message"
-        ],
-        "localDirWww": "/var/www/html",
-        "logBufferFlag": true,
-        "logDirectory": "log/",
-        "textBufferLength": 30,
-        "ftp_credsFileName": ""
-    },
-    "Scan": {
-        "doTest": false,
-        "maxScans": 0,
-        "mustLog": 30,
-        "scanDelay": 20
-    },
-    "Schedules": {
-        "choose": 0,
-        "schedules": {
-            "name": "Milder-Winter-Time",
-            "schedule": [
-                [
-                    40,
-                    4,
-                    55,
-                    7.5,
-                    50,
-                    15,
-                    55,
-                    18,
-                    50,
-                    21,
-                    40
-                ],
-                [
-                    40,
-                    4,
-                    55,
-                    7.5,
-                    50,
-                    15,
-                    55,
-                    18,
-                    50,
-                    21,
-                    40
-                ],
-                [
-                    40,
-                    4,
-                    55,
-                    7.5,
-                    50,
-                    15,
-                    55,
-                    18,
-                    50,
-                    21,
-                    40
-                ],
-                [
-                    40,
-                    4,
-                    55,
-                    7.5,
-                    50,
-                    15,
-                    55,
-                    18,
-                    50,
-                    21,
-                    40
-                ],
-                [
-                    40,
-                    4,
-                    55,
-                    7.5,
-                    50,
-                    15,
-                    55,
-                    18,
-                    50,
-                    21,
-                    40
-                ],
-                [
-                    40,
-                    4,
-                    55,
-                    7.5,
-                    50,
-                    15,
-                    55,
-                    18,
-                    50,
-                    21,
-                    40
-                ],
-                [
-                    40,
-                    4,
-                    55,
-                    7.5,
-                    50,
-                    15,
-                    55,
-                    18,
-                    50,
-                    21,
-                    40
-                ]
-            ]
-        }
-    },
-    "Tuya": {
-        "devices": [
-            {
-                "codes": [
-                    "switch_1",
-                    "temp_current"
-                ],
-                "id": "bfd590ed31af72dd013xvd",
-                "name": "Temperature Controller",
-                "numCommandPairs": 1,
-                "switchCode": 0,
-                "tempCode": 1,
-                "values": [
-                    false,
-                    123
-                ]
-            },
-            {
-                "codes": "c1",
-                "id": "id1",
-                "name": "spare1",
-                "numCommandPairs": 0,
-                "switchCode": "sc1",
-                "tempCode": "tc1",
-                "values": "v1"
-            },
-            {
-                "codes": "c2",
-                "id": "id2",
-                "name": "spare2",
-                "numCommandPairs": 0,
-                "switchCode": "sc2",
-                "tempCode": "tc2",
-                "values": "v2"
-            },
-            {
-                "codes": "x",
-                "id": "x",
-                "name": "spare3",
-                "numCommandPairs": 0,
-                "switchCode": "x",
-                "tempCode": "x",
-                "values": "x"
-            },
-            {
-                "codes": "x",
-                "id": "x",
-                "name": "spare4",
-                "numCommandPairs": 0,
-                "switchCode": "x",
-                "tempCode": "x",
-                "values": "x"
-            },
-            {
-                "codes": "x",
-                "id": "x",
-                "name": "spare5",
-                "numCommandPairs": 0,
-                "switchCode": "x",
-                "tempCode": "x",
-                "values": "x"
-            },
-            {
-                "codes": "x",
-                "id": "x",
-                "name": "spare6",
-                "numCommandPairs": 0,
-                "switchCode": "x",
-                "tempCode": "x",
-                "values": "x"
-            },
-            {
-                "codes": "x",
-                "id": "x",
-                "name": "spare7",
-                "numCommandPairs": 9,
-                "switchCode": "x",
-                "tempCode": "x",
-                "values": "x"
-            },
-            {
-                "codes": "x",
-                "id": "x",
-                "name": "spare8",
-                "numCommandPairs": 0,
-                "switchCode": "x",
-                "tempCode": "x",
-                "values": "x"
-            },
-            {
-                "codes": "x",
-                "id": "x",
-                "name": "spare9",
-                "numCommandPairs": 0,
-                "switchCode": "x",
-                "tempCode": "x",
-                "values": "x"
-            }
-        ],
-        "numberCommandDevices": 1
-    }
-} 
 
-Test Data:
+ Registered Device Number: 12
  {
-    "BoilerControl": {
-        "changeRateMultiplyer": 14,
-        "controlAverageMins": 3,
-        "hysteresis": 1,
-        "infoAverageMins": 30,
-        "tempChangeToLog": 1.5
-    },
-    "Debug": false,
-    "Log": {
-        "addToHtmlFile": "lg",
-        "ftp_credsFileName": "",
-        "headings": [
-            "Time",
-            "Hour in Day",
-            "Boiler Temp",
-            "Predicted Temp",
-            "Boiler Target Temp",
-            "Boiler Status",
-            "Change Rate Per Hr",
-            "Slow Average",
-            "On Time",
-            "Off Time",
-            "Total On",
-            "Total Off",
-            "Reason",
-            "Message"
-        ],
-        "localDirWww": "/var/www/html",
-        "logBufferFlag": true,
-        "logDirectory": "log/",
-        "textBufferLength": 30
-    },
-    "Scan": {
-        "doTest": false,
-        "maxScans": 0,
-        "mustLog": 30,
-        "scanDelay": 20
-    },
-    "Schedules": {
-        "choose": 0,
-        "schedules": {
-            "name": "Milder-Winter-Time",
-            "schedule": [
-                [
-                    40,
-                    4,
-                    55,
-                    7.5,
-                    50,
-                    15,
-                    55,
-                    18,
-                    50,
-                    21,
-                    40
-                ],
-                [
-                    40,
-                    4,
-                    55,
-                    7.5,
-                    50,
-                    15,
-                    55,
-                    18,
-                    50,
-                    21,
-                    40
-                ],
-                [
-                    40,
-                    4,
-                    55,
-                    7.5,
-                    50,
-                    15,
-                    55,
-                    18,
-                    50,
-                    21,
-                    40
-                ],
-                [
-                    40,
-                    4,
-                    55,
-                    7.5,
-                    50,
-                    15,
-                    55,
-                    18,
-                    50,
-                    21,
-                    40
-                ],
-                [
-                    40,
-                    4,
-                    55,
-                    7.5,
-                    50,
-                    15,
-                    55,
-                    18,
-                    50,
-                    21,
-                    40
-                ],
-                [
-                    40,
-                    4,
-                    55,
-                    7.5,
-                    50,
-                    15,
-                    55,
-                    18,
-                    50,
-                    21,
-                    40
-                ],
-                [
-                    40,
-                    4,
-                    55,
-                    7.5,
-                    50,
-                    15,
-                    55,
-                    18,
-                    50,
-                    21,
-                    40
-                ]
-            ]
-        }
-    },
-    "Tuya": {
-        "devices": [
+    "name": "SWITCH02",
+    "id": "bf0e00da7f4df8c38dxvqu",
+    "key": "a723153202de9942",
+    "mac": "cc:8c:bf:57:48:f1",
+    "category": "tdq",
+    "product_name": "1 Gang WiFi Smart Relay",
+    "product_id": "fugkn1vkc53nvo1s",
+    "biz_type": 18,
+    "model": "",
+    "sub": false,
+    "icon": "https://images.tuyaeu.com/smart/icon/bay1616752324955DLSy/c355bb843c62d04aad1557ec5d34a5f1.png",
+    "uuid": "243d2c497ec4c104"
+}
+Properties for :  12
+ {
+    "result": {
+        "category": "tdq",
+        "functions": [
             {
-                "codes": [
-                    "switch_1",
-                    "temp_current"
-                ],
-                "id": "bfd590ed31af72dd013xvd",
-                "name": "Temperature Controller",
-                "numCommandPairs": 1,
-                "switchCode": 0,
-                "tempCode": 1,
-                "values": [
-                    false,
-                    123
-                ]
+                "code": "switch_1",
+                "desc": "{}",
+                "name": "\u5f00\u51731",
+                "type": "Boolean",
+                "values": "{}"
             },
             {
-                "codes": "c1",
-                "id": "id1",
-                "name": "spare1",
-                "numCommandPairs": 0,
-                "switchCode": "sc1",
-                "tempCode": "tc1",
-                "values": "v1"
+                "code": "countdown_1",
+                "desc": "{\"unit\":\"s\",\"min\":0,\"max\":86400,\"scale\":0,\"step\":1}",
+                "name": "\u5f00\u51731\u5012\u8ba1\u65f6",
+                "type": "Integer",
+                "values": "{\"unit\":\"s\",\"min\":0,\"max\":86400,\"scale\":0,\"step\":1}"
             },
             {
-                "codes": "c2",
-                "id": "id2",
-                "name": "spare2",
-                "numCommandPairs": 0,
-                "switchCode": "sc2",
-                "tempCode": "tc2",
-                "values": "v2"
+                "code": "relay_status",
+                "desc": "{\"range\":[\"0\",\"1\",\"2\"]}",
+                "name": "\u4e0a\u7535\u72b6\u6001\u8bbe\u7f6e",
+                "type": "Enum",
+                "values": "{\"range\":[\"0\",\"1\",\"2\"]}"
             },
             {
-                "codes": "x",
-                "id": "x",
-                "name": "spare3",
-                "numCommandPairs": 0,
-                "switchCode": "x",
-                "tempCode": "x",
-                "values": "x"
+                "code": "random_time",
+                "desc": "{\"maxlen\":255}",
+                "name": "\u968f\u673a\u5b9a\u65f6",
+                "type": "String",
+                "values": "{\"maxlen\":255}"
             },
             {
-                "codes": "x",
-                "id": "x",
-                "name": "spare4",
-                "numCommandPairs": 0,
-                "switchCode": "x",
-                "tempCode": "x",
-                "values": "x"
+                "code": "cycle_time",
+                "desc": "{\"maxlen\":255}",
+                "name": "\u5faa\u73af\u5b9a\u65f6",
+                "type": "String",
+                "values": "{\"maxlen\":255}"
             },
             {
-                "codes": "x",
-                "id": "x",
-                "name": "spare5",
-                "numCommandPairs": 0,
-                "switchCode": "x",
-                "tempCode": "x",
-                "values": "x"
-            },
-            {
-                "codes": "x",
-                "id": "x",
-                "name": "spare6",
-                "numCommandPairs": 0,
-                "switchCode": "x",
-                "tempCode": "x",
-                "values": "x"
-            },
-            {
-                "codes": "x",
-                "id": "x",
-                "name": "spare7",
-                "numCommandPairs": 9,
-                "switchCode": "x",
-                "tempCode": "x",
-                "values": "x"
-            },
-            {
-                "codes": "x",
-                "id": "x",
-                "name": "spare8",
-                "numCommandPairs": 0,
-                "switchCode": "x",
-                "tempCode": "x",
-                "values": "x"
-            },
-            {
-                "codes": "x",
-                "id": "x",
-                "name": "spare9",
-                "numCommandPairs": 0,
-                "switchCode": "x",
-                "tempCode": "x",
-                "values": "x"
+                "code": "switch_inching",
+                "desc": "{\"maxlen\":255}",
+                "name": "\u70b9\u52a8\u5f00\u5173",
+                "type": "String",
+                "values": "{\"maxlen\":255}"
             }
         ],
-        "numberCommandDevices": 1
-    }
+        "status": [
+            {
+                "code": "switch_1",
+                "name": "\u5f00\u51731",
+                "type": "Boolean",
+                "values": "{}"
+            },
+            {
+                "code": "countdown_1",
+                "name": "\u5f00\u51731\u5012\u8ba1\u65f6",
+                "type": "Integer",
+                "values": "{\"unit\":\"s\",\"min\":0,\"max\":86400,\"scale\":0,\"step\":1}"
+            },
+            {
+                "code": "relay_status",
+                "name": "\u4e0a\u7535\u72b6\u6001\u8bbe\u7f6e",
+                "type": "Enum",
+                "values": "{\"range\":[\"0\",\"1\",\"2\"]}"
+            },
+            {
+                "code": "random_time",
+                "name": "\u968f\u673a\u5b9a\u65f6",
+                "type": "String",
+                "values": "{\"maxlen\":255}"
+            },
+            {
+                "code": "cycle_time",
+                "name": "\u5faa\u73af\u5b9a\u65f6",
+                "type": "String",
+                "values": "{\"maxlen\":255}"
+            },
+            {
+                "code": "switch_inching",
+                "name": "\u70b9\u52a8\u5f00\u5173",
+                "type": "String",
+                "values": "{\"maxlen\":255}"
+            }
+        ]
+    },
+    "success": true,
+    "t": 1688570429878,
+    "tid": "79ff6aab1b4711ee97740a4306e7517e"
 }
